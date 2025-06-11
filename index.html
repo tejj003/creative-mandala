@@ -1,0 +1,911 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Mandala Maker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', 'Monaco', 'Menlo', 'Consolas', monospace;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            color: #ffffff;
+        }
+
+        .container {
+            background: rgba(20, 20, 30, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(20px);
+            overflow: hidden;
+            max-width: 1200px;
+            width: 100%;
+        }
+
+        .header {
+            background: linear-gradient(45deg, #6c5ce7, #a29bfe, #fd79a8);
+            color: white;
+            text-align: center;
+            padding: 25px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .header h1 {
+            font-size: 2.8em;
+            margin-bottom: 12px;
+            text-shadow: 0 0 20px rgba(108, 92, 231, 0.5);
+            background: linear-gradient(45deg, #ffffff, #ddd6fe);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1em;
+        }
+
+        .main-content {
+            display: flex;
+            gap: 20px;
+            padding: 20px;
+        }
+
+        .controls {
+            min-width: 280px;
+            background: rgba(25, 25, 40, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .canvas-container {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #000000;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: inset 0 0 50px rgba(108, 92, 231, 0.1);
+        }
+
+        canvas {
+            border-radius: 50%;
+            box-shadow: 0 0 50px rgba(108, 92, 231, 0.3), 0 0 100px rgba(162, 155, 254, 0.2);
+            cursor: crosshair;
+            transition: transform 0.3s ease;
+            background: #000000;
+        }
+
+        canvas:hover {
+            transform: scale(1.02);
+            box-shadow: 0 0 60px rgba(108, 92, 231, 0.5), 0 0 120px rgba(162, 155, 254, 0.3);
+        }
+
+        .control-group {
+            margin-bottom: 25px;
+            padding: 18px;
+            background: rgba(30, 30, 50, 0.8);
+            border-radius: 12px;
+            border-left: 4px solid #6c5ce7;
+            border: 1px solid rgba(108, 92, 231, 0.3);
+        }
+
+        .control-group h3 {
+            color: #a29bfe;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+            text-shadow: 0 0 10px rgba(162, 155, 254, 0.3);
+        }
+
+        .control-item {
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        label {
+            color: #ddd6fe;
+            font-weight: 500;
+            font-size: 0.9em;
+        }
+
+        input[type="range"] {
+            width: 120px;
+            height: 6px;
+            border-radius: 3px;
+            background: #2d3748;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #6c5ce7, #a29bfe);
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(108, 92, 231, 0.5);
+        }
+
+        input[type="color"] {
+            width: 40px;
+            height: 30px;
+            border: 1px solid rgba(108, 92, 231, 0.5);
+            border-radius: 8px;
+            cursor: pointer;
+            background: #1a1a2e;
+        }
+
+        select {
+            padding: 8px 12px;
+            border: 1px solid rgba(108, 92, 231, 0.5);
+            border-radius: 8px;
+            background: #1a1a2e;
+            color: #ddd6fe;
+            cursor: pointer;
+        }
+
+        select option {
+            background: #1a1a2e;
+            color: #ddd6fe;
+        }
+
+        input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: #6c5ce7;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 12px 18px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            flex: 1;
+            min-width: 80px;
+            color: white;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-family: 'Courier New', 'Monaco', 'Menlo', 'Consolas', monospace;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #6c5ce7, #a29bfe);
+            box-shadow: 0 4px 15px rgba(108, 92, 231, 0.3);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(45deg, #fd79a8, #fdcb6e);
+            box-shadow: 0 4px 15px rgba(253, 121, 168, 0.3);
+        }
+
+        .btn-accent {
+            background: linear-gradient(45deg, #00b894, #00cec9);
+            box-shadow: 0 4px 15px rgba(0, 184, 148, 0.3);
+        }
+
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(108, 92, 231, 0.4);
+        }
+
+        .btn-secondary:hover {
+            box-shadow: 0 8px 25px rgba(253, 121, 168, 0.4);
+        }
+
+        .btn-accent:hover {
+            box-shadow: 0 8px 25px rgba(0, 184, 148, 0.4);
+        }
+
+        .value-display {
+            min-width: 35px;
+            text-align: right;
+            font-weight: bold;
+            color: #6c5ce7;
+            background: rgba(108, 92, 231, 0.1);
+            padding: 4px 8px;
+            border-radius: 6px;
+            border: 1px solid rgba(108, 92, 231, 0.3);
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        @keyframes slideOut {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(100%); opacity: 0; }
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                flex-direction: column;
+            }
+
+            .controls {
+                min-width: auto;
+            }
+
+            canvas {
+                max-width: 90vw;
+                max-height: 90vw;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>✨ Interactive Mandala Maker ✨</h1>
+            <p>Create beautiful symmetrical patterns with your mouse</p>
+        </div>
+        
+        <div class="main-content">
+            <div class="controls">
+                <div class="control-group">
+                    <h3>🎨 Drawing</h3>
+                    <div class="control-item">
+                        <label>Color:</label>
+                        <input type="color" id="colorPicker" value="#ff6b6b">
+                    </div>
+                    <div class="control-item">
+                        <label>Brush Size:</label>
+                        <input type="range" id="brushSize" min="1" max="20" value="3">
+                        <span class="value-display" id="brushSizeValue">3</span>
+                    </div>
+                    <div class="control-item">
+                        <label>Opacity:</label>
+                        <input type="range" id="opacity" min="0.1" max="1" step="0.1" value="0.8">
+                        <span class="value-display" id="opacityValue">0.8</span>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <h3>🔄 Symmetry</h3>
+                    <div class="control-item">
+                        <label>Segments:</label>
+                        <input type="range" id="segments" min="4" max="24" value="8">
+                        <span class="value-display" id="segmentsValue">8</span>
+                    </div>
+                    <div class="control-item">
+                        <label>Mirror:</label>
+                        <input type="checkbox" id="mirror" checked>
+                    </div>
+                    <div class="control-item">
+                        <label>Center Shape:</label>
+                        <select id="centerShape">
+                            <option value="none">None</option>
+                            <option value="circle">Circle</option>
+                            <option value="square">Square</option>
+                            <option value="triangle">Triangle</option>
+                            <option value="hexagon">Hexagon</option>
+                            <option value="star">Star</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <h3>✨ Effects</h3>
+                    <div class="control-item">
+                        <label>Pattern:</label>
+                        <select id="pattern">
+                            <option value="circle">Circle</option>
+                            <option value="square">Square</option>
+                            <option value="star">Star</option>
+                            <option value="heart">Heart</option>
+                            <option value="spiral">Spiral</option>
+                        </select>
+                    </div>
+                    <div class="control-item">
+                        <label>Animation:</label>
+                        <input type="checkbox" id="animate">
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <h3>🎯 Actions</h3>
+                    <div class="buttons">
+                        <button class="btn-primary" id="clearBtn">Clear</button>
+                        <button class="btn-secondary" id="saveBtn">Save</button>
+                        <button class="btn-accent" id="randomBtn">Random</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="canvas-container">
+                <canvas id="mandalaCanvas" width="500" height="500"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ========== CANVAS MANAGER ==========
+        class CanvasManager {
+            constructor(canvasId) {
+                this.canvas = document.getElementById(canvasId);
+                this.ctx = this.canvas.getContext('2d');
+                this.centerX = this.canvas.width / 2;
+                this.centerY = this.canvas.height / 2;
+                this.isDrawing = false;
+                this.initCanvas();
+            }
+
+            initCanvas() {
+                const gradient = this.ctx.createRadialGradient(
+                    this.centerX, this.centerY, 0, 
+                    this.centerX, this.centerY, 250
+                );
+                gradient.addColorStop(0, 'rgba(108, 92, 231, 0.05)');
+                gradient.addColorStop(0.5, 'rgba(0, 0, 0, 0.8)');
+                gradient.addColorStop(1, 'rgba(0, 0, 0, 1)');
+                this.ctx.fillStyle = gradient;
+                this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+                
+                // Draw center shape if selected
+                this.drawCenterShape();
+            }
+
+            clear() {
+                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                this.initCanvas();
+            }
+
+            drawCenterShape() {
+                const centerShape = document.getElementById('centerShape').value;
+                if (centerShape === 'none') return;
+
+                const size = 30; // Fixed size for center shape
+                this.ctx.save();
+                this.ctx.globalAlpha = 0.3;
+                this.ctx.fillStyle = '#6c5ce7';
+                this.ctx.strokeStyle = '#a29bfe';
+                this.ctx.lineWidth = 2;
+
+                switch(centerShape) {
+                    case 'circle':
+                        this.ctx.beginPath();
+                        this.ctx.arc(this.centerX, this.centerY, size, 0, Math.PI * 2);
+                        this.ctx.fill();
+                        this.ctx.stroke();
+                        break;
+                    case 'square':
+                        this.ctx.fillRect(this.centerX - size, this.centerY - size, size * 2, size * 2);
+                        this.ctx.strokeRect(this.centerX - size, this.centerY - size, size * 2, size * 2);
+                        break;
+                    case 'triangle':
+                        this.drawTriangle(this.centerX, this.centerY, size);
+                        break;
+                    case 'hexagon':
+                        this.drawPolygon(this.centerX, this.centerY, 6, size);
+                        break;
+                    case 'star':
+                        this.drawCenterStar(this.centerX, this.centerY, 5, size, size * 0.5);
+                        break;
+                }
+                this.ctx.restore();
+            }
+
+            drawTriangle(x, y, size) {
+                this.ctx.beginPath();
+                this.ctx.moveTo(x, y - size);
+                this.ctx.lineTo(x - size * 0.866, y + size * 0.5);
+                this.ctx.lineTo(x + size * 0.866, y + size * 0.5);
+                this.ctx.closePath();
+                this.ctx.fill();
+                this.ctx.stroke();
+            }
+
+            drawPolygon(x, y, sides, size) {
+                this.ctx.beginPath();
+                for (let i = 0; i < sides; i++) {
+                    const angle = (i * 2 * Math.PI) / sides - Math.PI / 2;
+                    const px = x + Math.cos(angle) * size;
+                    const py = y + Math.sin(angle) * size;
+                    if (i === 0) {
+                        this.ctx.moveTo(px, py);
+                    } else {
+                        this.ctx.lineTo(px, py);
+                    }
+                }
+                this.ctx.closePath();
+                this.ctx.fill();
+                this.ctx.stroke();
+            }
+
+            drawCenterStar(cx, cy, spikes, outerRadius, innerRadius) {
+                let rot = Math.PI / 2 * 3;
+                let x = cx;
+                let y = cy;
+                const step = Math.PI / spikes;
+
+                this.ctx.beginPath();
+                this.ctx.moveTo(cx, cy - outerRadius);
+
+                for (let i = 0; i < spikes; i++) {
+                    x = cx + Math.cos(rot) * outerRadius;
+                    y = cy + Math.sin(rot) * outerRadius;
+                    this.ctx.lineTo(x, y);
+                    rot += step;
+
+                    x = cx + Math.cos(rot) * innerRadius;
+                    y = cy + Math.sin(rot) * innerRadius;
+                    this.ctx.lineTo(x, y);
+                    rot += step;
+                }
+
+                this.ctx.lineTo(cx, cy - outerRadius);
+                this.ctx.closePath();
+                this.ctx.fill();
+                this.ctx.stroke();
+            }
+
+            getMousePos(e) {
+                const rect = this.canvas.getBoundingClientRect();
+                return {
+                    x: e.clientX - rect.left,
+                    y: e.clientY - rect.top
+                };
+            }
+
+            save() {
+                try {
+                    const padding = 50; // Add 50px padding on all sides
+                    const tempCanvas = document.createElement('canvas');
+                    const tempCtx = tempCanvas.getContext('2d');
+                    tempCanvas.width = this.canvas.width + (padding * 2);
+                    tempCanvas.height = this.canvas.height + (padding * 2);
+                    
+                    // Fill with black background
+                    tempCtx.fillStyle = 'black';
+                    tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+                    
+                    // Draw the mandala centered with padding
+                    tempCtx.drawImage(this.canvas, padding, padding);
+                    
+                    tempCanvas.toBlob((blob) => {
+                        const url = URL.createObjectURL(blob);
+                        const link = document.createElement('a');
+                        link.href = url;
+                        link.download = `mandala_${Date.now()}.png`;
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                        URL.revokeObjectURL(url);
+                    }, 'image/png');
+                    
+                    return true;
+                } catch (error) {
+                    console.error('Error saving image:', error);
+                    return false;
+                }
+            }
+        }
+
+        // ========== SHAPE DRAWER ==========
+        class ShapeDrawer {
+            constructor(ctx) {
+                this.ctx = ctx;
+            }
+
+            drawShape(x, y, size, color, alpha, shape) {
+                this.ctx.globalAlpha = alpha;
+                this.ctx.fillStyle = color;
+                this.ctx.strokeStyle = color;
+                this.ctx.lineWidth = size;
+
+                switch(shape) {
+                    case 'circle':
+                        this.drawCircle(x, y, size);
+                        break;
+                    case 'square':
+                        this.drawSquare(x, y, size);
+                        break;
+                    case 'star':
+                        this.drawStar(x, y, 5, size/2, size/4);
+                        break;
+                    case 'heart':
+                        this.drawHeart(x, y, size/3);
+                        break;
+                    case 'spiral':
+                        this.drawSpiral(x, y, size/4);
+                        break;
+                }
+            }
+
+            drawCircle(x, y, size) {
+                this.ctx.beginPath();
+                this.ctx.arc(x, y, size/2, 0, Math.PI * 2);
+                this.ctx.fill();
+            }
+
+            drawSquare(x, y, size) {
+                this.ctx.fillRect(x - size/2, y - size/2, size, size);
+            }
+
+            drawStar(cx, cy, spikes, outerRadius, innerRadius) {
+                let rot = Math.PI / 2 * 3;
+                let x = cx;
+                let y = cy;
+                const step = Math.PI / spikes;
+
+                this.ctx.beginPath();
+                this.ctx.moveTo(cx, cy - outerRadius);
+
+                for (let i = 0; i < spikes; i++) {
+                    x = cx + Math.cos(rot) * outerRadius;
+                    y = cy + Math.sin(rot) * outerRadius;
+                    this.ctx.lineTo(x, y);
+                    rot += step;
+
+                    x = cx + Math.cos(rot) * innerRadius;
+                    y = cy + Math.sin(rot) * innerRadius;
+                    this.ctx.lineTo(x, y);
+                    rot += step;
+                }
+
+                this.ctx.lineTo(cx, cy - outerRadius);
+                this.ctx.closePath();
+                this.ctx.fill();
+            }
+
+            drawHeart(x, y, size) {
+                this.ctx.beginPath();
+                this.ctx.moveTo(x, y + size/4);
+                this.ctx.bezierCurveTo(x, y, x - size/2, y, x - size/2, y + size/4);
+                this.ctx.bezierCurveTo(x - size/2, y + size/2, x, y + size, x, y + size);
+                this.ctx.bezierCurveTo(x, y + size, x + size/2, y + size/2, x + size/2, y + size/4);
+                this.ctx.bezierCurveTo(x + size/2, y, x, y, x, y + size/4);
+                this.ctx.fill();
+            }
+
+            drawSpiral(x, y, size) {
+                this.ctx.beginPath();
+                for (let i = 0; i < size; i++) {
+                    const angle = 0.1 * i;
+                    const radius = i / 3;
+                    const spiralX = x + Math.cos(angle) * radius;
+                    const spiralY = y + Math.sin(angle) * radius;
+                    
+                    if (i === 0) {
+                        this.ctx.moveTo(spiralX, spiralY);
+                    } else {
+                        this.ctx.lineTo(spiralX, spiralY);
+                    }
+                }
+                this.ctx.stroke();
+            }
+        }
+
+        // ========== MANDALA DRAWER ==========
+        class MandalaDrawer {
+            constructor(canvas, ctx) {
+                this.canvas = canvas;
+                this.ctx = ctx;
+                this.centerX = canvas.width / 2;
+                this.centerY = canvas.height / 2;
+                this.shapeDrawer = new ShapeDrawer(ctx);
+                this.rotationAngle = 0;
+            }
+
+            drawMandala(mouseX, mouseY, settings) {
+                const { segments, brushSize, color, opacity, pattern, mirror, animate } = settings;
+                const numSegments = parseInt(segments);
+                const segmentAngle = (Math.PI * 2) / numSegments;
+                const size = parseInt(brushSize);
+                const alpha = parseFloat(opacity);
+
+                const dx = mouseX - this.centerX;
+                const dy = mouseY - this.centerY;
+                const radius = Math.sqrt(dx * dx + dy * dy);
+                const angle = Math.atan2(dy, dx);
+
+                this.ctx.save();
+                this.ctx.translate(this.centerX, this.centerY);
+
+                for (let i = 0; i < numSegments; i++) {
+                    this.ctx.save();
+                    this.ctx.rotate(i * segmentAngle + (animate ? this.rotationAngle : 0));
+                    
+                    const x = Math.cos(angle) * radius;
+                    const y = Math.sin(angle) * radius;
+                    this.shapeDrawer.drawShape(x, y, size, color, alpha, pattern);
+                    
+                    if (mirror) {
+                        this.shapeDrawer.drawShape(x, -y, size, color, alpha, pattern);
+                    }
+                    
+                    this.ctx.restore();
+                }
+                
+                this.ctx.restore();
+            }
+
+            updateRotation() {
+                this.rotationAngle += 0.02;
+            }
+        }
+
+        // ========== CONTROL MANAGER ==========
+        class ControlManager {
+            constructor() {
+                this.elements = {
+                    colorPicker: document.getElementById('colorPicker'),
+                    brushSize: document.getElementById('brushSize'),
+                    opacity: document.getElementById('opacity'),
+                    segments: document.getElementById('segments'),
+                    mirror: document.getElementById('mirror'),
+                    pattern: document.getElementById('pattern'),
+                    animate: document.getElementById('animate'),
+                    centerShape: document.getElementById('centerShape'),
+                    
+                    brushSizeValue: document.getElementById('brushSizeValue'),
+                    opacityValue: document.getElementById('opacityValue'),
+                    segmentsValue: document.getElementById('segmentsValue'),
+                    
+                    clearBtn: document.getElementById('clearBtn'),
+                    saveBtn: document.getElementById('saveBtn'),
+                    randomBtn: document.getElementById('randomBtn')
+                };
+                
+                this.initValueDisplays();
+                this.initCenterShapeListener();
+            }
+
+            initValueDisplays() {
+                this.elements.brushSize.oninput = () => {
+                    this.elements.brushSizeValue.textContent = this.elements.brushSize.value;
+                };
+                
+                this.elements.opacity.oninput = () => {
+                    this.elements.opacityValue.textContent = this.elements.opacity.value;
+                };
+                
+                this.elements.segments.oninput = () => {
+                    this.elements.segmentsValue.textContent = this.elements.segments.value;
+                };
+            }
+
+            initCenterShapeListener() {
+                this.elements.centerShape.addEventListener('change', () => {
+                    // Trigger canvas redraw when center shape changes
+                    window.mandalaApp.canvasManager.initCanvas();
+                });
+            }
+
+            getSettings() {
+                return {
+                    color: this.elements.colorPicker.value,
+                    brushSize: this.elements.brushSize.value,
+                    opacity: this.elements.opacity.value,
+                    segments: this.elements.segments.value,
+                    mirror: this.elements.mirror.checked,
+                    pattern: this.elements.pattern.value,
+                    animate: this.elements.animate.checked,
+                    centerShape: this.elements.centerShape.value
+                };
+            }
+
+            randomize() {
+                this.elements.colorPicker.value = '#' + Math.floor(Math.random()*16777215).toString(16);
+                this.elements.brushSize.value = Math.floor(Math.random() * 15) + 3;
+                this.elements.opacity.value = (Math.random() * 0.8 + 0.2).toFixed(1);
+                this.elements.segments.value = Math.floor(Math.random() * 16) + 6;
+                this.elements.mirror.checked = Math.random() > 0.5;
+                this.elements.pattern.value = ['circle', 'square', 'star', 'heart', 'spiral'][Math.floor(Math.random() * 5)];
+                this.elements.centerShape.value = ['none', 'circle', 'square', 'triangle', 'hexagon', 'star'][Math.floor(Math.random() * 6)];
+                
+                this.elements.brushSizeValue.textContent = this.elements.brushSize.value;
+                this.elements.opacityValue.textContent = this.elements.opacity.value;
+                this.elements.segmentsValue.textContent = this.elements.segments.value;
+                
+                // Redraw canvas with new center shape
+                window.mandalaApp.canvasManager.initCanvas();
+            }
+        }
+
+        // ========== UTILITIES ==========
+        function showMessage(text, type = 'info') {
+            const existingMsg = document.querySelector('.message');
+            if (existingMsg) {
+                existingMsg.remove();
+            }
+            
+            const message = document.createElement('div');
+            message.className = `message message-${type}`;
+            message.textContent = text;
+            message.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: ${type === 'success' ? '#4CAF50' : '#f44336'};
+                color: white;
+                padding: 12px 20px;
+                border-radius: 8px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+                z-index: 1000;
+                animation: slideIn 0.3s ease-out;
+            `;
+            
+            document.body.appendChild(message);
+            
+            setTimeout(() => {
+                if (message.parentNode) {
+                    message.style.animation = 'slideOut 0.3s ease-in';
+                    setTimeout(() => message.remove(), 300);
+                }
+            }, 3000);
+        }
+
+        class AnimationManager {
+            constructor() {
+                this.animationId = null;
+                this.callbacks = [];
+            }
+
+            start() {
+                if (this.animationId) return;
+                
+                const animate = () => {
+                    this.callbacks.forEach(callback => callback());
+                    this.animationId = requestAnimationFrame(animate);
+                };
+                animate();
+            }
+
+            stop() {
+                if (this.animationId) {
+                    cancelAnimationFrame(this.animationId);
+                    this.animationId = null;
+                }
+            }
+
+            addCallback(callback) {
+                this.callbacks.push(callback);
+            }
+        }
+
+        // ========== MAIN APPLICATION ==========
+        class MandalaApp {
+            constructor() {
+                this.canvasManager = new CanvasManager('mandalaCanvas');
+                this.mandalaDrawer = new MandalaDrawer(this.canvasManager.canvas, this.canvasManager.ctx);
+                this.controlManager = new ControlManager();
+                this.animationManager = new AnimationManager();
+                
+                // Make app globally accessible for center shape updates
+                window.mandalaApp = this;
+                
+                this.init();
+            }
+
+            init() {
+                this.setupEventListeners();
+                this.setupAnimation();
+            }
+
+            setupEventListeners() {
+                // Canvas drawing events
+                this.canvasManager.canvas.addEventListener('mousedown', (e) => {
+                    this.canvasManager.isDrawing = true;
+                    const mousePos = this.canvasManager.getMousePos(e);
+                    this.draw(mousePos.x, mousePos.y);
+                });
+
+                this.canvasManager.canvas.addEventListener('mousemove', (e) => {
+                    if (this.canvasManager.isDrawing) {
+                        const mousePos = this.canvasManager.getMousePos(e);
+                        this.draw(mousePos.x, mousePos.y);
+                    }
+                });
+
+                this.canvasManager.canvas.addEventListener('mouseup', () => {
+                    this.canvasManager.isDrawing = false;
+                });
+
+                this.canvasManager.canvas.addEventListener('mouseout', () => {
+                    this.canvasManager.isDrawing = false;
+                });
+
+                // Touch events
+                this.setupTouchEvents();
+
+                // Control buttons
+                this.controlManager.elements.clearBtn.addEventListener('click', () => {
+                    this.canvasManager.clear();
+                });
+
+                this.controlManager.elements.saveBtn.addEventListener('click', () => {
+                    const success = this.canvasManager.save();
+                    showMessage(
+                        success ? 'Mandala saved successfully!' : 'Error saving image. Please try again.',
+                        success ? 'success' : 'error'
+                    );
+                });
+
+                this.controlManager.elements.randomBtn.addEventListener('click', () => {
+                    this.controlManager.randomize();
+                });
+
+                // Animation toggle
+                this.controlManager.elements.animate.addEventListener('change', () => {
+                    if (this.controlManager.elements.animate.checked) {
+                        this.animationManager.start();
+                    } else {
+                        this.animationManager.stop();
+                    }
+                });
+            }
+
+            setupTouchEvents() {
+                this.canvasManager.canvas.addEventListener('touchstart', (e) => {
+                    e.preventDefault();
+                    const touch = e.touches[0];
+                    const mouseEvent = new MouseEvent('mousedown', {
+                        clientX: touch.clientX,
+                        clientY: touch.clientY
+                    });
+                    this.canvasManager.canvas.dispatchEvent(mouseEvent);
+                });
+
+                this.canvasManager.canvas.addEventListener('touchmove', (e) => {
+                    e.preventDefault();
+                    const touch = e.touches[0];
+                    const mouseEvent = new MouseEvent('mousemove', {
+                        clientX: touch.clientX,
+                        clientY: touch.clientY
+                    });
+                    this.canvasManager.canvas.dispatchEvent(mouseEvent);
+                });
+
+                this.canvasManager.canvas.addEventListener('touchend', (e) => {
+                    e.preventDefault();
+                    const mouseEvent = new MouseEvent('mouseup', {});
+                    this.canvasManager.canvas.dispatchEvent(mouseEvent);
+                });
+            }
+
+            setupAnimation() {
+                this.animationManager.addCallback(() => {
+                    this.mandalaDrawer.updateRotation();
+                });
+            }
+
+            draw(x, y) {
+                const settings = this.controlManager.getSettings();
+                this.mandalaDrawer.drawMandala(x, y, settings);
+            }
+        }
+
+        // Initialize the app when the DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            new MandalaApp();
+        });
+    </script>
+</body>
+</html>
